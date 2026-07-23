@@ -36,10 +36,17 @@ export class PersonaController {
   async createPersona(req: Request, res: Response) {
     const { nombres, apellidos, identificacion, fechaNacimiento, password } = req.body;
   
-    if (!/^\d{10}$/.test(identificacion) || /(.)\1{3}/.test(identificacion)) {
+    // Requisito 4: 10 dígitos, solo números, sin 4 iguales seguidos
+    if (!/^\d{10}$/.test(identificacion) || /(\d)\1{3}/.test(identificacion)) {
       return res.status(400).json({ message: "Invalid identification format" });
     }
-  
+    if (!nombres || !apellidos) {
+      return res.status(400).json({ message: "Nombres y apellidos son obligatorios" });
+    }
+    if (!password) {
+      return res.status(400).json({ message: "La contraseña es obligatoria" });
+    }
+
     try {
       const existingPersona = await this.personaService.findByIdentificacion(identificacion);
       if (existingPersona) {
@@ -58,27 +65,22 @@ export class PersonaController {
             fechaNacimiento,
           } as Persona);
 
-      const userName = this.generateUserName(nombres, apellidos);
+      const { userName, mail } = await this.userService.generateCredentials(nombres, apellidos);
 
       const newUser = await this.userService.createUser({
         userName,
-        password: password || identificacion,
-        mail: `${userName}@example.com`, 
-        sessionActive: "A",
+        password, // se valida y encripta dentro de createUser
+        mail,
+        sessionActive: "I",
         status: "active",
-        persona: newPersona, 
+        persona: newPersona,
       } as User);
-  
-      return res.status(201).json({ persona: newPersona, user: newUser });
-    } catch (error) {
-      return res.status(500).json({ message: error });
-    }
-  }
 
-  private generateUserName(nombres: string, apellidos: string): string {
-    const baseUserName = `${nombres.split(" ")[0]}${apellidos.split(" ")[0]}`.toLowerCase();
-    const randomNumber = Math.floor(1000 + Math.random() * 9000); 
-    return `${baseUserName}${randomNumber}`.substring(0, 20); 
+      const { password: _omit, ...userSafe } = newUser;
+      return res.status(201).json({ persona: newPersona, user: userSafe });
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message || String(error) });
+    }
   }
 
   async updatePersona(req: Request, res: Response) {

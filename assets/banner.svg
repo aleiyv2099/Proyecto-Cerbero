@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 260" width="960" height="260" role="img" aria-label="Cerbero - API-REST de autenticacion y sesiones">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e1b4b"/>
+      <stop offset="0.55" stop-color="#4c1d95"/>
+      <stop offset="1" stop-color="#6d28d9"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <clipPath id="card">
+      <rect x="0" y="0" width="960" height="260" rx="24"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#card)">
+    <rect x="0" y="0" width="960" height="260" fill="url(#bg)"/>
+
+    <!-- puntos de fondo -->
+    <g fill="#ffffff" opacity="0.05">
+      <circle cx="120" cy="40" r="2"/><circle cx="220" cy="90" r="2"/>
+      <circle cx="60" cy="170" r="2"/><circle cx="300" cy="30" r="2"/>
+      <circle cx="180" cy="220" r="2"/><circle cx="360" cy="150" r="2"/>
+    </g>
+
+    <!-- barrido de brillo -->
+    <rect x="-260" y="0" width="180" height="260" fill="#ffffff" opacity="0.06" transform="skewX(-18)">
+      <animate attributeName="x" from="-260" to="1200" dur="4.5s" begin="0.5s" repeatCount="indefinite"/>
+    </rect>
+
+    <!-- escudo con candado -->
+    <g transform="translate(120,130)">
+      <!-- trazo del escudo dibujandose -->
+      <path d="M0,-72 L58,-46 L58,10 C58,52 32,78 0,92 C-32,78 -58,52 -58,10 L-58,-46 Z"
+            fill="none" stroke="url(#gold)" stroke-width="5" stroke-linejoin="round"
+            stroke-dasharray="460" stroke-dashoffset="460">
+        <animate attributeName="stroke-dashoffset" from="460" to="0" dur="2s" begin="0s" fill="freeze"/>
+      </path>
+      <path d="M0,-72 L58,-46 L58,10 C58,52 32,78 0,92 C-32,78 -58,52 -58,10 L-58,-46 Z"
+            fill="#ffffff" opacity="0">
+        <animate attributeName="opacity" from="0" to="0.06" dur="1s" begin="1.8s" fill="freeze"/>
+      </path>
+
+      <!-- cuerpo del candado -->
+      <g opacity="0">
+        <animate attributeName="opacity" from="0" to="1" dur="0.6s" begin="1.6s" fill="freeze"/>
+        <rect x="-26" y="-4" width="52" height="42" rx="7" fill="url(#gold)"/>
+        <!-- arco del candado que se abre y cierra -->
+        <path d="M-16,-4 L-16,-20 A16,16 0 0 1 16,-20 L16,-4" fill="none" stroke="url(#gold)" stroke-width="7" stroke-linecap="round">
+          <animateTransform attributeName="transform" type="translate" values="0 0; 0 -10; 0 0"
+                            keyTimes="0;0.5;1" dur="3s" begin="2.4s" repeatCount="indefinite"/>
+        </path>
+        <!-- ojo de la cerradura -->
+        <circle cx="0" cy="12" r="6" fill="#4c1d95">
+          <animate attributeName="opacity" values="1;0.4;1" dur="1.8s" begin="2.4s" repeatCount="indefinite"/>
+        </circle>
+        <rect x="-2.5" y="14" width="5" height="14" rx="2" fill="#4c1d95"/>
+      </g>
+    </g>
+
+    <!-- texto -->
+    <g font-family="Segoe UI, Helvetica, Arial, sans-serif">
+      <text x="230" y="118" fill="#ffffff" font-size="72" font-weight="800" letter-spacing="6">CERBERO
+        <animate attributeName="opacity" from="0" to="1" dur="0.9s" begin="0.6s" fill="freeze"/>
+      </text>
+      <text x="233" y="158" fill="#c4b5fd" font-size="23" font-weight="500" letter-spacing="2">API-REST de Autenticacion y Sesiones
+        <animate attributeName="opacity" from="0" to="1" dur="0.9s" begin="1s" fill="freeze"/>
+      </text>
+
+      <!-- pulso de sesiones -->
+      <g transform="translate(233,196)" opacity="0">
+        <animate attributeName="opacity" from="0" to="1" dur="0.8s" begin="1.6s" fill="freeze"/>
+        <text x="34" y="5" fill="#a78bfa" font-size="15" font-weight="500" letter-spacing="1">Node.js · TypeScript · TypeORM · PostgreSQL</text>
+        <circle cx="6" cy="0" r="5" fill="#34d399">
+          <animate attributeName="r" values="5;8;5" dur="1.6s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="1;0.4;1" dur="1.6s" repeatCount="indefinite"/>
+        </circle>
+      </g>
+    </g>
+  </g>
+
+  <rect x="1.5" y="1.5" width="957" height="257" rx="23" fill="none" stroke="#8b5cf6" stroke-opacity="0.4" stroke-width="2"/>
+</svg>

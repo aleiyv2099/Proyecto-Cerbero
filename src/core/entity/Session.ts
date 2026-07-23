@@ -6,11 +6,11 @@ export class Session {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ type: "date" })
+  @Column({ type: "timestamp" })
   fechaIngreso!: Date;
 
-  @Column({ type: "date", nullable: true })
-  fechaCierre!: Date;
+  @Column({ type: "timestamp", nullable: true })
+  fechaCierre!: Date | null;
 
   @Column({ type: "boolean", default: false })
   isDeleted!: boolean;

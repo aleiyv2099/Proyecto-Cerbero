@@ -30,10 +30,22 @@ export class Middleware {
       req["currentUser"] = decoded;
 
       next();
-    } catch (error) {
-      console.error(`Token verification error: ${Error}`);
+    } catch (error: any) {
+      console.error(`Token verification error: ${error.message || error}`);
       return res.status(401).json({ message: "Unauthorized" });
     }
+  }
+
+  // Requisito V: restringe endpoints a roles específicos (ej. revisar sesiones)
+  static requireRole(...allowed: string[]) {
+    return (req: Request, res: Response, next: NextFunction) => {
+      // @ts-expect-error currentUser lo setea verifyToken
+      const roles: string[] = req["currentUser"]?.roles || [];
+      if (!roles.some((r) => allowed.includes(r))) {
+        return res.status(403).json({ message: "Acceso denegado: rol insuficiente" });
+      }
+      next();
+    };
   }
 
   static async errorHandler(

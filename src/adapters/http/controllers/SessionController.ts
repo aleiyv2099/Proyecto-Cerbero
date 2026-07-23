@@ -22,6 +22,17 @@ export class SessionController {
     return res.status(200).json(session);
   }
 
+  // Requisito V: registro de inicios de sesión de un usuario (solo rol autorizado)
+  async getUserLoginHistory(req: Request, res: Response) {
+    const { userId } = req.params;
+    try {
+      const history = await this.sessionService.getLoginHistory(Number(userId));
+      return res.status(200).json(history);
+    } catch (error: any) {
+      return res.status(500).json({ message: error.message || String(error) });
+    }
+  }
+
   async createSessionForLogin(userId: number): Promise<Session> {
     // Crear una nueva sesión al iniciar sesión
     const newSession = await this.sessionService.createSession({

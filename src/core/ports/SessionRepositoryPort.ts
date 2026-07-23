@@ -8,4 +8,5 @@ export interface SessionRepositoryPort {
   updateSession(id: number, session: Session): Promise<Session>;
   deleteSession(id: number): Promise<boolean>;
   findActiveSessionByUserId(userId: number): Promise<Session | null>;
+  getLoginHistory(userId: number): Promise<any[]>;
 }

@@ -1,0 +1,130 @@
+{
+  "info": {
+    "name": "API-REST Login",
+    "description": "CRUD de Personas, Usuarios, Roles y Sesiones + Login/Logout. baseUrl y token en variables de colección.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Personas",
+      "item": [
+        {
+          "name": "Crear persona (genera usuario + correo)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/personas/persona/create",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Juan Alberto\",\n  \"apellidos\": \"Piguave Loor\",\n  \"identificacion\": \"1203574901\",\n  \"fechaNacimiento\": \"1995-05-20\",\n  \"password\": \"Clave$2025\"\n}"
+            }
+          }
+        },
+        { "name": "Listar personas", "request": { "method": "GET", "url": "{{baseUrl}}/personas/personas" } },
+        { "name": "Obtener persona por id", "request": { "method": "GET", "url": "{{baseUrl}}/personas/persona/1" } },
+        {
+          "name": "Actualizar persona",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/personas/persona/1",
+            "body": { "mode": "raw", "raw": "{\n  \"nombres\": \"Juan Alberto\",\n  \"apellidos\": \"Piguave Loor\"\n}" }
+          }
+        },
+        { "name": "Eliminar persona (lógico)", "request": { "method": "DELETE", "url": "{{baseUrl}}/personas/persona/1" } }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        { "name": "Listar usuarios", "request": { "method": "GET", "url": "{{baseUrl}}/users/users" } },
+        { "name": "Obtener usuario por id", "request": { "method": "GET", "url": "{{baseUrl}}/users/user/1" } },
+        { "name": "Obtener usuario por email", "request": { "method": "GET", "url": "{{baseUrl}}/users/user/email/jpiguavel@mail.com" } },
+        {
+          "name": "Actualizar usuario",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/users/user/1",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"active\"\n}" }
+          }
+        },
+        { "name": "Eliminar usuario (lógico)", "request": { "method": "DELETE", "url": "{{baseUrl}}/users/user/1" } },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.token) { pm.collectionVariables.set('token', json.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/users/login",
+            "body": { "mode": "raw", "raw": "{\n  \"identifier\": \"jpiguavel\",\n  \"password\": \"Clave$2025\"\n}" }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/users/logout",
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": 1\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        { "name": "Listar roles", "request": { "method": "GET", "url": "{{baseUrl}}/roles/roles" } },
+        {
+          "name": "Crear rol",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/roles/role/create",
+            "body": { "mode": "raw", "raw": "{\n  \"rolName\": \"admin\"\n}" }
+          }
+        },
+        { "name": "Obtener rol por id", "request": { "method": "GET", "url": "{{baseUrl}}/roles/role/1" } },
+        {
+          "name": "Actualizar rol",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/roles/role/1",
+            "body": { "mode": "raw", "raw": "{\n  \"rolName\": \"admin\"\n}" }
+          }
+        },
+        { "name": "Eliminar rol (lógico)", "request": { "method": "DELETE", "url": "{{baseUrl}}/roles/role/1" } }
+      ]
+    },
+    {
+      "name": "Sesiones",
+      "item": [
+        { "name": "Listar sesiones", "request": { "method": "GET", "url": "{{baseUrl}}/sessions/sessions" } },
+        { "name": "Obtener sesión por id", "request": { "method": "GET", "url": "{{baseUrl}}/sessions/session/1" } },
+        {
+          "name": "Historial de login de usuario (Stored Procedure, rol admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/sessions/sessions/user/1"
+          }
+        }
+      ]
+    }
+  ]
+}

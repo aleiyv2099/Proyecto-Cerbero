@@ -19,7 +19,6 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(cors());
-app.use(Middleware.errorHandler);
 
 // Routes
 app.use("/api/users", userRoutes);
@@ -31,6 +30,9 @@ app.use("/api/sessions", sessionRoutes);
 app.get("*", (req: express.Request, res: express.Response) => {
   res.status(404).json({ message: "Page not found" });
 });
+
+// Error handler (debe ir al final, después de las rutas)
+app.use(Middleware.errorHandler);
 
 // Initialize database and start server
 AppDataSource.initialize()

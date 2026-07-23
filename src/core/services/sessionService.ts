@@ -34,4 +34,8 @@ export class SessionService {
   async getActiveSessionByUserId(userId: number): Promise<Session | null> {
     return await this.sessionRepository.findActiveSessionByUserId(userId);
   }
+
+  async getLoginHistory(userId: number): Promise<any[]> {
+    return await this.sessionRepository.getLoginHistory(userId);
+  }
 }

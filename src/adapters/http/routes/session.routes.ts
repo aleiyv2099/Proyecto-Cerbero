@@ -12,4 +12,12 @@ const sessionController = new SessionController(sessionService);
 router.get("/sessions", sessionController.getAllSessions.bind(sessionController));
 router.get("/session/:id", sessionController.getSession.bind(sessionController));
 
+// Requisito V: solo un usuario con rol "admin" puede revisar el historial de otro
+router.get(
+  "/sessions/user/:userId",
+  Middleware.verifyToken,
+  Middleware.requireRole("admin"),
+  sessionController.getUserLoginHistory.bind(sessionController)
+);
+
 export default router;

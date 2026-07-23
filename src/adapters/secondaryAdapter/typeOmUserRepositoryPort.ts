@@ -6,14 +6,14 @@ export class TypeOrmUserRepositoryPort implements UserRepositoryPort {
   private userRepository = AppDataSource.getRepository(User);
 
   async findAll(): Promise<User[]> {
-    const users = await this.userRepository.find({ relations: ["persona", "roles", "sessions"] });
+    const users = await this.userRepository.find({ relations: ["persona", "roles.role", "sessions"] });
     return users;
   }
 
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { mail: email },
-      relations: ["persona", "roles", "sessions"],
+      relations: ["persona", "roles.role", "sessions"],
     });
     return user;
   }
@@ -21,7 +21,7 @@ export class TypeOrmUserRepositoryPort implements UserRepositoryPort {
   async findId(id: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { idUsuario: parseInt(id) },
-      relations: ["persona", "roles", "sessions"],
+      relations: ["persona", "roles.role", "sessions"],
     });
     return user;
   }
@@ -57,14 +57,14 @@ export class TypeOrmUserRepositoryPort implements UserRepositoryPort {
         { mail: identifier }, // Buscar por correo
         { userName: identifier }, // Buscar por nombre de usuario
       ],
-      relations: ["persona", "roles", "sessions"], // Incluir relaciones necesarias
+      relations: ["persona", "roles.role", "sessions"], // Incluir relaciones necesarias
     });
     return user;
   }
   async findByUserName(userName: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { userName },
-      relations: ["persona", "roles", "sessions"],
+      relations: ["persona", "roles.role", "sessions"],
     });
     return user;
   }

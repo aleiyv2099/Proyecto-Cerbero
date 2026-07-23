@@ -1,3 +1,4 @@
+import { IsNull } from "typeorm";
 import { Session } from "../../core/entity/Session";
 import { SessionRepositoryPort } from "../../core/ports/SessionRepositoryPort";
 import { AppDataSource } from "../database/data-source";
@@ -43,9 +44,13 @@ export class TypeOrmSessionRepositoryPort implements SessionRepositoryPort {
   }
   async findActiveSessionByUserId(userId: number): Promise<Session | null> {
     return await this.sessionRepository.findOne({
-      where: { user: { idUsuario: userId }, fechaCierre: undefined },
+      where: { user: { idUsuario: userId }, fechaCierre: IsNull() },
       relations: ["user"],
     });
   }
 
+  // Requisito Stored Procedure: consume la función PL/pgSQL fn_login_history
+  async getLoginHistory(userId: number): Promise<any[]> {
+    return await AppDataSource.query("SELECT * FROM fn_login_history($1)", [userId]);
+  }
 }

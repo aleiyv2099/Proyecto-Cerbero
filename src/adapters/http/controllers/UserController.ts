@@ -1,8 +1,11 @@
 import { Request, Response } from "express";
+import * as jwt from "jsonwebtoken";
 import { UserService } from "../../../core/services/userService";
 import { User } from "../../../core/entity/User";
 import { Ecrypt } from "../../helpers/encrypt";
 import { SessionController } from "./SessionController";
+
+const MAX_FAILED_ATTEMPTS = 3;
 
 export class UserController {
   constructor(private userService: UserService,
@@ -28,65 +31,64 @@ export class UserController {
 
   async login(req: Request, res: Response) {
     const { identifier, password } = req.body;
-  
+
+    if (!identifier || !password) {
+      return res.status(400).json({ message: "identifier y password son obligatorios" });
+    }
+
     try {
       const user = await this.userService.getUserByIdentifier(identifier);
-  
-      if (!user) {
+
+      if (!user || user.isDeleted) {
         return res.status(404).json({ message: "User not found" });
       }
-  
+
+      // Requisito IV: usuario bloqueado tras 3 intentos fallidos
       if (user.status === "blocked") {
-        return res.status(403).json({ message: "User is blocked due to multiple failed login attempts" });
+        return res.status(403).json({ message: "Usuario bloqueado por múltiples intentos fallidos" });
       }
-  
-      // Si el usuario está en estado inactivo (I), permitir el inicio de sesión y cambiar a activo (A)
-      if (user.sessionActive === "I") {
-        const isPasswordValid = await this.userService.verifyPassword(password, user.password);
-        if (!isPasswordValid) {
-          return res.status(401).json({ message: "Invalid password" });
-        }
-  
-        user.sessionActive = "A"; // Cambiar a activo
-        user.failedAttempts = 0; // Reiniciar intentos fallidos
-        await this.userService.updateUser(user.idUsuario.toString(), user);
-  
-        // Crear una nueva sesión para el usuario
-        const session = await this.sessionController.createSessionForLogin(user.idUsuario);
-  
-        return res.status(200).json({ message: "Login successful", user, session });
-      }
-  
-      // Si el usuario ya tiene una sesión activa
-      if (user.sessionActive === "A") {
-        return res.status(400).json({ message: "User already has an active session" });
-      }
-  
-      // Validar la contraseña
+
       const isPasswordValid = await this.userService.verifyPassword(password, user.password);
+
       if (!isPasswordValid) {
         user.failedAttempts += 1;
-  
-        if (user.failedAttempts >= 3) {
+
+        if (user.failedAttempts >= MAX_FAILED_ATTEMPTS) {
           user.status = "blocked";
           await this.userService.updateUser(user.idUsuario.toString(), user);
-          return res.status(403).json({ message: "User is blocked due to multiple failed login attempts" });
+          return res.status(403).json({ message: "Usuario bloqueado por múltiples intentos fallidos" });
         }
-  
+
         await this.userService.updateUser(user.idUsuario.toString(), user);
-        return res.status(401).json({ message: "Invalid password" });
+        return res.status(401).json({
+          message: "Contraseña incorrecta",
+          intentosRestantes: MAX_FAILED_ATTEMPTS - user.failedAttempts,
+        });
       }
-  
+
+      // Requisito I: solo una sesión activa a la vez
+      if (user.sessionActive === "A") {
+        return res.status(409).json({ message: "El usuario ya tiene una sesión activa" });
+      }
+
       user.failedAttempts = 0;
-      user.sessionActive = "A"; // Cambiar a activo
+      user.sessionActive = "A";
       await this.userService.updateUser(user.idUsuario.toString(), user);
-  
-      // Crear una nueva sesión para el usuario
+
+      // Requisito II: se registra el inicio de sesión
       const session = await this.sessionController.createSessionForLogin(user.idUsuario);
-  
-      return res.status(200).json({ message: "Login successful", user, session });
-    } catch (error) {
-      return res.status(500).json({ message: error });
+
+      const roles = (user.roles || []).map((ru) => ru.role?.rolName).filter(Boolean);
+      const token = jwt.sign(
+        { id: user.idUsuario, roles },
+        process.env.JWT_SECRET || "secret",
+        { expiresIn: "8h" }
+      );
+
+      const { password: _omit, ...userSafe } = user;
+      return res.status(200).json({ message: "Login successful", token, user: userSafe, session });
+    } catch (error: any) {
+      return res.status(500).json({ message: error.message || String(error) });
     }
   }
   async logout(req: Request, res: Response) {
@@ -114,8 +116,8 @@ export class UserController {
       }
   
       return res.status(200).json({ message: "Logout successful" });
-    } catch (error) {
-      return res.status(500).json({ message: Error });
+    } catch (error: any) {
+      return res.status(500).json({ message: error.message || String(error) });
     }
   }
 
